@@ -1,0 +1,50 @@
+﻿﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Somnia Wallet Viewer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="https://unpkg.com/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
+</head>
+<body class="bg-light">
+
+<!-- Navbar -->
+<nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container">
+        <span class="navbar-brand">🧪 Somnia Wallet Viewer</span>
+    </div>
+</nav>
+
+<div class="container">
+    <!-- Connect Buttons -->
+    <div id="connectButtons" class="mb-4">
+        <button id="connectInjected" class="btn btn-primary me-2">Connect MetaMask</button>
+        <button id="connectWalletConnect" class="btn btn-outline-secondary">Connect WalletConnect</button>
+    </div>
+
+    <!-- Disconnect Button -->
+    <div id="disconnectButtons" class="mb-4" style="display:none;">
+        <button id="disconnectMetaMask" class="btn btn-danger">Disconnect MetaMask</button>
+    </div>
+
+    <!-- Wallet Info -->
+    <div id="walletInfo" class="card mb-4" style="display:none;">
+        <div class="card-body">
+            <h5 class="card-title">Connected Wallet</h5>
+            <p><strong>Address:</strong> <code id="walletAddress"></code></p>
+            <p><strong>STT Balance:</strong> <span class="badge bg-success" id="nativeBalance"></span></p>
+        </div>
+    </div>
+
+    <!-- NFT Grid -->
+    <h4>Your ERC-1155 NFTs</h4>
+    <div id="nftGrid" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-1">
+        <!-- NFT Cards will appear here -->
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

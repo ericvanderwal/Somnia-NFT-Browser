@@ -409,7 +409,16 @@ async function loadERC721NFTs(address) {
 }
 
 // Connect event listeners
-document.getElementById("connectInjected").addEventListener("click", connectInjectedWallet);
+document.addEventListener('DOMContentLoaded', function() {
+    // Connect button listener
+    const connectButton = document.getElementById("connectInjected");
+    if (connectButton) {
+        connectButton.addEventListener("click", connectInjectedWallet);
+    }
 
-// Disconnect event listener
-document.getElementById("disconnectMetaMask").addEventListener("click", disconnectMetaMask);
+    // Disconnect button listener
+    const disconnectButton = document.getElementById("disconnectMetaMask");
+    if (disconnectButton) {
+        disconnectButton.addEventListener("click", disconnectMetaMask);
+    }
+});

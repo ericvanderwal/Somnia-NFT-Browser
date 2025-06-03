@@ -1,12 +1,6 @@
 ﻿﻿const SOMNIA_RPC = "https://dream-rpc.somnia.network";
 const SOMNIA_CHAIN_ID = 50312;
 const API_BASE = "https://data-api.cloud.ormi.dev/somnia/v1";
-// Using multiple CORS proxies for redundancy
-const CORS_PROXIES = [
-    "https://corsproxy.io/?",
-    "https://api.allorigins.win/raw?url=",
-    "https://cors-anywhere.herokuapp.com/"
-];
 
 // Global state to track connection
 let isConnected = false;
@@ -115,29 +109,45 @@ async function connectWithWalletConnect() {
 }
 
 async function displayWalletInfo(address) {
+    // Show wallet info first
     document.getElementById("walletAddress").textContent = address;
     document.getElementById("walletInfo").style.display = "block";
     
-    // Show loading states
+    // Show loading states with improved styling
     document.getElementById("nftGrid").innerHTML = `
         <div class="col-12 text-center py-5">
-            <div class="spinner-border text-primary" role="status">
+            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
                 <span class="visually-hidden">Loading...</span>
             </div>
-            <p class="mt-2">Loading ERC-1155 NFTs...</p>
+            <h5 class="text-muted">Loading ERC-1155 NFTs...</h5>
+            <p class="text-muted small">This may take a few moments</p>
         </div>`;
     
     document.getElementById("nftGrid721").innerHTML = `
         <div class="col-12 text-center py-5">
-            <div class="spinner-border text-primary" role="status">
+            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
                 <span class="visually-hidden">Loading...</span>
             </div>
-            <p class="mt-2">Loading ERC-721 NFTs...</p>
+            <h5 class="text-muted">Loading ERC-721 NFTs...</h5>
+            <p class="text-muted small">This may take a few moments</p>
         </div>`;
 
-    await loadNativeBalance(address);
-    await loadERC1155NFTs(address);
-    await loadERC721NFTs(address);
+    // Show loading state for balance
+    document.getElementById("nativeBalance").innerHTML = `
+        <div class="spinner-border spinner-border-sm text-light" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>`;
+
+    try {
+        // Load data in parallel
+        await Promise.all([
+            loadNativeBalance(address),
+            loadERC1155NFTs(address),
+            loadERC721NFTs(address)
+        ]);
+    } catch (err) {
+        console.error("Error loading wallet data:", err);
+    }
 }
 
 function updateButtonVisibility() {
@@ -153,31 +163,12 @@ function updateButtonVisibility() {
     }
 }
 
-async function fetchWithCorsProxy(url, options = {}) {
-    let lastError = null;
-    
-    // Try each proxy in sequence
-    for (const proxy of CORS_PROXIES) {
-        try {
-            const proxyUrl = `${proxy}${encodeURIComponent(url)}`;
-            const response = await fetch(proxyUrl, options);
-            if (response.ok) {
-                return response;
-            }
-            lastError = new Error(`HTTP error! status: ${response.status}`);
-        } catch (err) {
-            lastError = err;
-            console.warn(`Failed with proxy ${proxy}:`, err);
-            continue;
-        }
-    }
-    
-    throw lastError || new Error("All CORS proxies failed");
-}
-
 async function loadNativeBalance(address) {
     try {
-        const res = await fetchWithCorsProxy(`${API_BASE}/address/${address}/balance/native`);
+        const res = await fetch(`${API_BASE}/address/${address}/balance/native`);
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
         const data = await res.json();
         const balanceSTT = parseFloat(data.balanceValue?.value || 0).toFixed(3);
         document.getElementById("nativeBalance").textContent = `${balanceSTT} STT`;
@@ -189,13 +180,16 @@ async function loadNativeBalance(address) {
 
 async function loadERC1155NFTs(address) {
     try {
-        const res = await fetchWithCorsProxy(`${API_BASE}/address/${address}/balance/erc1155?page-size=100`, {
+        const res = await fetch(`${API_BASE}/address/${address}/balance/erc1155?page-size=100`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             }
         });
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
         const data = await res.json();
         console.log('ERC1155 Response:', data); // Debug log
         const container = document.getElementById("nftGrid");
@@ -244,13 +238,16 @@ async function loadERC1155NFTs(address) {
 
 async function loadERC721NFTs(address) {
     try {
-        const res = await fetchWithCorsProxy(`${API_BASE}/address/${address}/balance/erc721?page-size=100`, {
+        const res = await fetch(`${API_BASE}/address/${address}/balance/erc721?page-size=100`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             }
         });
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
         const data = await res.json();
         console.log('ERC721 Response:', data); // Debug log
         const container = document.getElementById("nftGrid721");
